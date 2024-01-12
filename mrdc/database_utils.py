@@ -1,11 +1,8 @@
 import yaml
 import os
-import pandas as pd
 
 from sqlalchemy import create_engine
 from sqlalchemy import inspect
-
-cred_file = "db_creds.yaml"
 
 
 class DatabaseConnector:
@@ -13,14 +10,14 @@ class DatabaseConnector:
         self.base_path = base_path
         self.cred_file = cred_file
 
-    def _read_db_creds(self):
-        full_file_path = os.path.join(self.base_path + self.cred_file)
+    def read_db_creds(self):
+        full_file_path = os.path.join(self.base_path, self.cred_file)
         with open(full_file_path, 'r') as file:
             data = yaml.safe_load(file)
             return data
 
     def init_db_engine(self):
-        database_cred = self._read_db_creds()
+        database_cred = self.read_db_creds()
         database_uri = f"postgresql+psycopg2://{database_cred['RDS_USER']}" \
                        f":{database_cred['RDS_PASSWORD']}@{database_cred['RDS_HOST']}:" \
                        f"{database_cred['RDS_PORT']}/{database_cred['RDS_DATABASE']}"
