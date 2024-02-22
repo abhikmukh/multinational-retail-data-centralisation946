@@ -16,7 +16,7 @@ class DatabaseConnector:
             data = yaml.safe_load(file)
             return data
 
-    def init_db_engine(self):
+    def _init_db_engine(self):
         database_cred = self.read_db_creds()
         database_uri = f"postgresql+psycopg2://{database_cred['RDS_USER']}" \
                        f":{database_cred['RDS_PASSWORD']}@{database_cred['RDS_HOST']}:" \
@@ -25,11 +25,11 @@ class DatabaseConnector:
         return database_engine
 
     def list_db_table(self):
-        engine = self.init_db_engine()
+        engine = self._init_db_engine()
         inspector = inspect(engine)
         list_all_tables = inspector.get_table_names()
         return list_all_tables
 
     def upload_to_db(self, df, table_name):
-        engine = self.init_db_engine()
+        engine = self._init_db_engine()
         df.to_sql(name=table_name, con=engine)
