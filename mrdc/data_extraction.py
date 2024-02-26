@@ -10,7 +10,9 @@ class DataExtractor:
         all_tables = data_connector.list_db_table()
         for table in all_tables:
             if table_name == table:
-                df = pd.read_sql_table(table, data_connector.init_db_engine())
+                engine = data_connector.init_db_engine()
+                conn = engine.connect()
+                df = pd.read_sql_table(table, conn)
                 return df
 
     @staticmethod
