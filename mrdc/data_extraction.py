@@ -1,5 +1,7 @@
+import requests
 import pandas as pd
 import tabula
+
 
 
 class DataExtractor:
@@ -20,6 +22,18 @@ class DataExtractor:
         dfs = tabula.read_pdf(pdf_path, lattice=True, pages="all")
         df = pd.concat(dfs)
         return df
+
+    @staticmethod
+    def get_api_response(url, headers_dict):
+        response = requests.get(url, headers_dict)
+        return response.json()
+
+    @staticmethod
+
+
+
+
+
 
 
 
