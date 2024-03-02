@@ -74,3 +74,111 @@ class DataCleaning:
         df = DataCleaning._clean_date(df, col_name="date_payment_confirmed", date_format='%Y-%m-%d')
 
         return df
+
+    @staticmethod
+    def clean_store_data(df):
+        """ This method will clean the store data
+        :param df:
+        :return:
+        """
+
+        # remove rows with NULL values
+        df = df[~df.isin(["NULL"]).any(axis=1)]
+        df = df[~df.isin(["N/A"]).any(axis=1)]
+
+        # drop lat columns since most of the values are NULL
+        df.drop(["lat"], inplace=True, axis=1)
+
+        # remove rows with wrong country
+        df = df[~df["country_code"].str.contains(r'[0-9]')]
+        df = df[~(df["country_code"].str.len() > 2)]
+
+        # remove rows with wrong continent
+        df['continent'] = df['continent'].str.replace('ee', '')
+
+        # remove rows with wrong store address
+        df = df[~df["locality"].str.contains(r'[0-9]')]
+
+        # remove rows with wrong longitude
+        df = df[~df["longitude"].str.contains(r'[a-zA-Z]', na=False)]
+
+        # remove rows with wrong latitude
+        df = df[~df["latitude"].str.contains(r'[a-zA-Z]', na=False)]
+
+        # remove rows with wrong opening date
+        df = DataCleaning._clean_date(df, col_name="opening_date", date_format='%Y-%m-%d')
+
+        return df
+
+    @staticmethod
+    def clean_order_data(df):
+        """ This method will clean the order data
+        :param df:
+        :return:
+        """
+
+        # remove rows with NULL values
+        df = df[~df.isin(["NULL"]).any(axis=1)]
+        df = df[~df.isin(["N/A"]).any(axis=1)]
+
+        # drop first_name, last_name and 1 columns
+        df = df.drop(["first_name", "last_name", "1"], axis=1)
+        return df
+
+    @staticmethod
+    def _convert_product_weights(product):
+        if "kg" in product:
+            product = product.split("kg")[0]
+            product = float(product)
+        elif "g" in product and "x" not in product:
+            product = product.split("g")[0]
+            product = float(product) / 1000
+        elif "ml" in product:
+            product = product.split("ml")[0]
+            product = float(product) / 1000
+        elif "oz" in product:
+            product = product.split("oz")[0]
+            product = float(product) * 0.0283495
+        elif "x" in product:
+            product = product.split("x")
+            product = (float(product[0].strip())) * float(product[1].strip().replace("g", "")) / 1000
+        else:
+            product = "NAN"
+        return product
+
+    @staticmethod
+    def clean_product_data(df):
+        """ This method will clean the product data
+        :param df:
+        :return:
+        """
+        # remove rows with NULL values
+        df.dropna(inplace=True)
+        df = df[~df.isin(["NULL"]).any(axis=1)]
+        df = df[~df.isin(["N/A"]).any(axis=1)]
+
+        # remove rows with wrong product weights
+        df["weight"] = df["weight"].map(DataCleaning._convert_product_weights)
+        df = df[~df.isin(["NAN"]).any(axis=1)]
+        df = DataCleaning._clean_date(df, col_name="date_added", date_format='%Y-%m-%d')
+
+        return df
+
+    @staticmethod
+    def clean_date_events(df):
+
+        # remove rows with NULL, N/A and NAN values
+        df = df[~df.isin(["NULL"]).any(axis=1)]
+        df = df[~df.isin(["N/A"]).any(axis=1)]
+
+        # remove rows with wrong date format in timestamp column
+        df = df[~df["timestamp"].str.contains(r'[a-zA-Z]')]
+
+        # remove rows with wrong date format in month, year, day and time_period column
+        df = df[~df["month"].str.contains(r'[a-zA-Z]')]
+        df = df[~df["year"].str.contains(r'[a-zA-Z]')]
+        df = df[~df["day"].str.contains(r'[a-zA-Z]')]
+        df = df[~df["time_period"].str.contains(r'[0-9]')]
+        return df
+
+

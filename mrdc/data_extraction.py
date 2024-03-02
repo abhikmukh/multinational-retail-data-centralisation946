@@ -3,7 +3,6 @@ import pandas as pd
 import tabula
 
 
-
 class DataExtractor:
 
     @staticmethod
@@ -29,6 +28,22 @@ class DataExtractor:
         return response.json()
 
     @staticmethod
+    def list_number_of_stores(url, headers_dict):
+        response = requests.get(url, headers=headers_dict)  # url = "https://api.yourcompany.com/stores"
+        response_json = response.json()
+        return response_json['number_stores']
+
+    @staticmethod
+    def retrieve_store_data(store_number, url, headers_dict):
+
+        list_of_dict = []
+        for i in range(store_number):
+            store_url = f"{url}/{i}"
+            response = requests.get(store_url, headers=headers_dict)
+            list_of_dict.append(response.json())
+        store_df = pd.DataFrame(list_of_dict)
+        return store_df
+
 
 
 
