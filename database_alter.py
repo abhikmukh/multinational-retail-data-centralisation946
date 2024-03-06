@@ -58,7 +58,7 @@ def main():
     postgres_data_connector.alter_table_data_verbose(table_name="dim_store_details", column_name="continent",
                                                      data_type="VARCHAR(255)")
 
-    # update dim_products table
+    # update dim_products table adding extra column and removing special characters
     postgres_data_connector.trim_special_character(table_name="dim_products", column_name="product_price",
                                                    special_character="£")
     postgres_data_connector.add_weight_category(table_name="dim_products", new_column_name="weight_class",
