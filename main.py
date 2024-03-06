@@ -2,16 +2,9 @@ import configparser
 import os
 import pandas as pd
 
-import boto3
-
 from mrdc import database_utils
 from mrdc import data_extraction
 from mrdc import data_cleaning
-
-
-def clean_and_upload_user_data(df, data_connector, table_name):
-    clean_data_df = data_cleaning.DataCleaning.clean_user_data(df)
-    data_connector.upload_to_db(clean_data_df, table_name=table_name)
 
 
 def main():
@@ -24,6 +17,7 @@ def main():
 
     # Extracting and cleaning user data and upload to db
     data_df = data_extractor.read_rds_table(aws_data_connector, table_name="legacy_users")
+
     clean_data_df = data_cleaning.DataCleaning.clean_user_data(data_df)
     postgres_data_connector.upload_to_db(clean_data_df, table_name="dim_users")
     print("User data cleaning and uploading to db is done")

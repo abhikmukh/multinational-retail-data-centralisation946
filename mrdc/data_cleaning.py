@@ -4,7 +4,7 @@ import pandas as pd
 class DataCleaning:
 
     @staticmethod
-    def _clean_date(df, col_name, date_format):
+    def _clean_date(df: pd.DataFrame, col_name: str, date_format: str) -> pd.DataFrame:
         """
         This method will clean the date column in the dataframe
         format='%Y-%m-%d'
@@ -20,7 +20,7 @@ class DataCleaning:
         return df
 
     @staticmethod
-    def clean_user_data(df):
+    def clean_user_data(df: pd.DataFrame) -> pd.DataFrame:
         """
         This method will clean the user data
         :param df:
@@ -55,7 +55,7 @@ class DataCleaning:
         return df
 
     @staticmethod
-    def clean_card_data(df):
+    def clean_card_data(df: pd.DataFrame) -> pd.DataFrame:
         """ This method will clean the card data
         :param df:
         :return:
@@ -76,7 +76,7 @@ class DataCleaning:
         return df
 
     @staticmethod
-    def clean_store_data(df):
+    def clean_store_data(df: pd.DataFrame) -> pd.DataFrame:
         """ This method will clean the store data
         :param df:
         :return:
@@ -92,6 +92,10 @@ class DataCleaning:
         # remove rows with wrong country
         df = df[~df["country_code"].str.contains(r'[0-9]')]
         df = df[~(df["country_code"].str.len() > 2)]
+
+        # remove staff_numbers that has alphabets
+
+        df = df[~df["staff_numbers"].str.contains(r'[a-zA-Z]')]
 
         # remove rows with wrong continent
         df['continent'] = df['continent'].str.replace('ee', '')
@@ -111,7 +115,7 @@ class DataCleaning:
         return df
 
     @staticmethod
-    def clean_order_data(df):
+    def clean_order_data(df: pd.DataFrame) -> pd.DataFrame:
         """ This method will clean the order data
         :param df:
         :return:
@@ -126,7 +130,11 @@ class DataCleaning:
         return df
 
     @staticmethod
-    def _convert_product_weights(product):
+    def _convert_product_weights(product: str) -> float:
+        """ This method will convert the product weights
+        :param product:
+        :return:
+        """
         if "kg" in product:
             product = product.split("kg")[0]
             product = float(product)
@@ -147,7 +155,7 @@ class DataCleaning:
         return product
 
     @staticmethod
-    def clean_product_data(df):
+    def clean_product_data(df: pd.DataFrame) -> pd.DataFrame:
         """ This method will clean the product data
         :param df:
         :return:
@@ -165,7 +173,11 @@ class DataCleaning:
         return df
 
     @staticmethod
-    def clean_date_events(df):
+    def clean_date_events(df: pd.DataFrame) -> pd.DataFrame:
+        """ This method will clean the date events data
+        :param df:
+        :return:
+        """
 
         # remove rows with NULL, N/A and NAN values
         df = df[~df.isin(["NULL"]).any(axis=1)]

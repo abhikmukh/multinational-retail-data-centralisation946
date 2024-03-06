@@ -29,7 +29,7 @@ class DataExtractor:
 
     @staticmethod
     def list_number_of_stores(url, headers_dict):
-        response = requests.get(url, headers=headers_dict)  # url = "https://api.yourcompany.com/stores"
+        response = requests.get(url, headers=headers_dict)
         response_json = response.json()
         return response_json['number_stores']
 
@@ -43,17 +43,3 @@ class DataExtractor:
             list_of_dict.append(response.json())
         store_df = pd.DataFrame(list_of_dict)
         return store_df
-
-
-
-
-
-
-
-
-
-
-
-
-
-
