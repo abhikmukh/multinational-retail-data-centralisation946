@@ -45,8 +45,8 @@ class DatabaseConnector:
     def alter_table_data_verbose(self, table_name, column_name, data_type):
         engine = self.init_db_engine()
         with engine.connect() as con:
-            con.execute(text(f"ALTER TABLE {table_name} ALTER COLUMN {column_name} TYPE {data_type} "
-                             f"using {column_name}::{data_type};"))
+            con.execute(text(f"ALTER TABLE {table_name} ALTER COLUMN \"{column_name}\" TYPE {data_type} "
+                             f"using \"{column_name}\"::{data_type};"))
             con.commit()
         print(f"Column {column_name} updated to table {table_name}")
 
@@ -58,18 +58,56 @@ class DatabaseConnector:
             con.commit()
         print(f"Special characters removed from column {column_name} in table {table_name}")
 
-    def add_weight_category(self, table_name, new_column_name, existing_column_name, data_type):
+    def add_new_column(self, table_name, new_column_name, data_type):
         engine = self.init_db_engine()
         with engine.connect() as con:
-            con.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {new_column_name} TYPE {data_type} "
-                             f"INSERT INTO {table_name} ({new_column_name}) ( "
-                             f"SELECT {existing_column_name},"
-                             f"CASE "
-                             f"WHEN {existing_column_name} < 2 THEN 'LIGHT' "
-                             f"WHEN {existing_column_name} >= 2 and {existing_column_name} < 40 THEN 'Mid_Sized' "
-                             f"WHEN {existing_column_name} >= 40 and {existing_column_name} < 140 THEN 'Heavy' "
-                             f"WHEN {existing_column_name} >= 140 THEN 'Truck_required' "
-                             f"END"
-                             f"FROM {table_name});"))
+            con.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {new_column_name} {data_type};"))
             con.commit()
-        print(f"Column {existing_column_name} of type {data_type} added to table {table_name}")
+        print(f"Column {new_column_name} of type {data_type} added to table {table_name}")
+
+    def remove_column(self, table_name, column_name):
+        engine = self.init_db_engine()
+        with engine.connect() as con:
+            con.execute(text(f"ALTER TABLE {table_name} DROP COLUMN {column_name};"))
+            con.commit()
+        print(f"Column {column_name} removed from table {table_name}")
+
+    def update_colum_with_new_data(self, table_name, column_name, new_data):
+        engine = self.init_db_engine()
+        with engine.connect() as con:
+            con.execute(text(f"UPDATE {table_name} SET {column_name} = {new_data};"))
+            con.commit()
+        print(f"New data updated to column {column_name} in table {table_name}")
+
+    def get_max_length(self, table_name, column_name):
+        engine = self.init_db_engine()
+        with engine.connect() as con:
+            result = con.execute(text(f"SELECT MAX(LENGTH('{column_name}')) FROM {table_name};"))
+            max_length = result.fetchone()
+            return int(max_length[0])
+
+    def add_primary_key(self, table_name, column_name):
+        engine = self.init_db_engine()
+        with engine.connect() as con:
+            con.execute(text(f"ALTER TABLE {table_name} ADD PRIMARY KEY ({column_name});"))
+            con.commit()
+        print(f"Primary key added to column {column_name} in table {table_name}")
+
+    def add_foreign_key(self, table_name, constraint_key, column_name, ref_table, ref_column):
+        engine = self.init_db_engine()
+        with engine.connect() as con:
+            con.execute(text(f"ALTER TABLE {table_name} ADD CONSTRAINT {constraint_key} "
+                             f"FOREIGN KEY ({column_name}) REFERENCES {ref_table} ({ref_column});"))
+            con.commit()
+        print(f"Foreign key added to column {column_name} in table {table_name} referencing {ref_table}({ref_column})")
+
+    def delete_missing_data(self, table_name, column_name, ref_column, ref_table):
+        engine = self.init_db_engine()
+        with engine.connect() as con:
+            con.execute(text(f"DELETE FROM {table_name} WHERE {column_name} IN "
+                             f"(SELECT {column_name} from {table_name} "
+                             f"EXCEPT "
+                             f"SELECT {ref_column} from {ref_table});"))
+            con.commit()
+        print(f"Deleted missing data from column {ref_column} in table {ref_table}")
+
