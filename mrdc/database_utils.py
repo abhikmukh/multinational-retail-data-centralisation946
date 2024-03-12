@@ -111,3 +111,9 @@ class DatabaseConnector:
             con.commit()
         print(f"Deleted missing data from column {ref_column} in table {ref_table}")
 
+    def run_query(self, query):
+        engine = self.init_db_engine()
+        with engine.connect() as con:
+            con.execute(text(query))
+            con.commit()
+        print(f"Query executed successfully")
