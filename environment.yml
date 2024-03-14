@@ -1,0 +1,6 @@
+name: test-env
+dependencies:
+  - anaconda
+  - pip
+  - pip:
+    - -r requirements.txt

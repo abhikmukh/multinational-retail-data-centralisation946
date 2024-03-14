@@ -46,7 +46,7 @@ def main():
     postgres_data_connector.alter_table_data_verbose(table_name="dim_store_details", column_name="locality",
                                                      data_type="VARCHAR(255)")
     postgres_data_connector.alter_table_data_verbose(table_name="dim_store_details", column_name="store_code",
-                                                     data_type="VARCHAR(11)")
+                                                     data_type="VARCHAR(12)")
     postgres_data_connector.alter_table_data_verbose(table_name="dim_store_details", column_name="staff_numbers",
                                                      data_type="SMALLINT")
     postgres_data_connector.alter_table_data_verbose(table_name="dim_store_details", column_name="opening_date",
@@ -109,6 +109,8 @@ def main():
                                                      data_type="VARCHAR(10)")
     postgres_data_connector.alter_table_data_verbose(table_name="dim_date_times", column_name="date_uuid",
                                                      data_type="UUID")
+    postgres_data_connector.alter_table_data_verbose(table_name="dim_date_times", column_name="timestamp",
+                                                     data_type="VARCHAR(8)")
 
     # update dim_card_details table's data type
     postgres_data_connector.alter_table_data_verbose(table_name="dim_card_details", column_name="card_number",

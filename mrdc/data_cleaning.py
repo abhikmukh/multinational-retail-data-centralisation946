@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 class DataCleaning:
@@ -82,10 +83,6 @@ class DataCleaning:
         :return:
         """
 
-        # remove rows with NULL values
-        df = df[~df.isin(["NULL"]).any(axis=1)]
-        df = df[~df.isin(["N/A"]).any(axis=1)]
-
         # drop lat columns since most of the values are NULL
         df.drop(["lat"], inplace=True, axis=1)
 
@@ -99,15 +96,13 @@ class DataCleaning:
 
         # remove rows with wrong continent
         df['continent'] = df['continent'].str.replace('ee', '')
+        df["longitude"] = df["longitude"].str.replace('N/A', '0')
+        df["latitude"] = df["longitude"].str.replace('N/A', '0')
+        df["longitude"] = df["longitude"].str.replace('NULL', '0')
+        df["latitude"] = df["longitude"].str.replace('NULL', '0')
 
         # remove rows with wrong store address
         df = df[~df["locality"].str.contains(r'[0-9]')]
-
-        # remove rows with wrong longitude
-        df = df[~df["longitude"].str.contains(r'[a-zA-Z]', na=False)]
-
-        # remove rows with wrong latitude
-        df = df[~df["latitude"].str.contains(r'[a-zA-Z]', na=False)]
 
         # remove rows with wrong opening date
         df = DataCleaning._clean_date(df, col_name="opening_date", date_format='%Y-%m-%d')
@@ -120,10 +115,6 @@ class DataCleaning:
         :param df:
         :return:
         """
-
-        # remove rows with NULL values
-        df = df[~df.isin(["NULL"]).any(axis=1)]
-        df = df[~df.isin(["N/A"]).any(axis=1)]
 
         # drop first_name, last_name and 1 columns
         df = df.drop(["first_name", "last_name", "1"], axis=1)
@@ -151,7 +142,7 @@ class DataCleaning:
             product = product.split("x")
             product = (float(product[0].strip())) * float(product[1].strip().replace("g", "")) / 1000
         else:
-            product = "NAN"
+            product = np.nan
         return product
 
     @staticmethod
@@ -162,12 +153,10 @@ class DataCleaning:
         """
         # remove rows with NULL values
         df.dropna(inplace=True)
-        df = df[~df.isin(["NULL"]).any(axis=1)]
-        df = df[~df.isin(["N/A"]).any(axis=1)]
-
         # remove rows with wrong product weights
         df["weight"] = df["weight"].map(DataCleaning._convert_product_weights)
-        df = df[~df.isin(["NAN"]).any(axis=1)]
+        # remove rows that could not be converted to float, rows with absurd values
+        df.dropna(inplace=True)
         df = DataCleaning._clean_date(df, col_name="date_added", date_format='%Y-%m-%d')
 
         return df
@@ -181,7 +170,6 @@ class DataCleaning:
 
         # remove rows with NULL, N/A and NAN values
         df = df[~df.isin(["NULL"]).any(axis=1)]
-        df = df[~df.isin(["N/A"]).any(axis=1)]
 
         # remove rows with wrong date format in timestamp column
         df = df[~df["timestamp"].str.contains(r'[a-zA-Z]')]

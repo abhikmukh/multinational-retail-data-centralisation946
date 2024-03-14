@@ -1,0 +1,1 @@
+select locality, count(*) as total_no_of_stores from dim_store_details group by locality order by total_no_of_stores desc limit 10;
